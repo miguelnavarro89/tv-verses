@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "parcel src/index.html --no-cache --open",
+    "start": "parcel src/index.html --no-cache",
     "build": "parcel build src/index.html --experimental-scope-hoisting"
   },
   "repository": "git+https://github.com/miguelnavarro89/tv-verses.git",
