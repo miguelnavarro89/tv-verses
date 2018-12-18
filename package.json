@@ -17,6 +17,7 @@
   "homepage": "https://github.com/miguelnavarro89/tv-verses#readme",
   "devDependencies": {
     "@babel/core": "^7.2.2",
+    "normalize.css": "^8.0.1",
     "parcel-bundler": "^1.10.3"
   },
   "dependencies": {
