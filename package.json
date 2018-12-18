@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "parcel src/index.html --no-cache",
-    "build": "parcel build src/index.html --experimental-scope-hoisting"
+    "build": "parcel build src/index.html --experimental-scope-hoisting",
+    "reinstall": "rm -rf yarn.lock && yarn"
   },
   "repository": "git+https://github.com/miguelnavarro89/tv-verses.git",
   "author": "Miguel Angel Navarro <miguelnavarro.co@gmail.com>",
@@ -16,12 +17,12 @@
   "homepage": "https://github.com/miguelnavarro89/tv-verses#readme",
   "devDependencies": {
     "@babel/core": "^7.2.2",
-    "@babel/plugin-transform-react-jsx": "^7.2.0",
-    "parcel-bundler": "^1.10.3",
-    "ramda": "^0.26.1"
+    "parcel-bundler": "^1.10.3"
   },
   "dependencies": {
-    "preact": "^8.4.2",
-    "preact-compat": "^3.18.4"
+    "ramda": "^0.26.1",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "styled-components": "^4.1.3"
   }
 }

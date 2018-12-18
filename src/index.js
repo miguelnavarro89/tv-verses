@@ -1,8 +1,13 @@
-import { h, render } from 'preact'
+import React from 'react'
+import { render } from 'react-dom'
+import GlobalStyle from './css/global'
 
 const App = () => {
   return (
-    <h1>TV Verses</h1>
+    <div>
+      <h1>TV Verses</h1>
+      <GlobalStyle />
+    </div>
   )
 }
 
