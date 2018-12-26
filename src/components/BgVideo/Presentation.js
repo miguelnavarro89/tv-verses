@@ -18,6 +18,7 @@ export default function Presentation({ id }) {
 
   return (
     <Wrapper>
+      {/* Replaced by an <iframe> at Youtube's API script load time */}
       <div id={id}></div>
     </Wrapper>
   ) 
