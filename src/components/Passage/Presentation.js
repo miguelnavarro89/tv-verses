@@ -7,12 +7,11 @@ const Content = styled.div``
 
 const Reference = styled.div``
 
-export default function Presentation({ content = '', reference = '' }) {
-
+export default function Presentation ({ content, version, chapter, verse }) {
   return (
     <Wrapper>
       <Content>{content}</Content>
-      <Reference>{reference}</Reference>
+      <Reference>{version} {chapter}: {verse}</Reference>
     </Wrapper>
-  ) 
+  )
 }
