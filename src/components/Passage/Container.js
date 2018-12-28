@@ -1,17 +1,18 @@
 import React, { Component } from 'react'
 import Presentation from './Presentation'
 import Api from '../../Api'
-import { castLotsFor, getRandomOf } from '../../utils'
+import { getRandomOf } from '../../utils'
 
 export default class Container extends Component {
-  constructor () {
-    super()
+  constructor (props) {
+    super(props)
     this.state = {
       bibles: [],
       books: [],
       activePassage: {
         content: '',
         version: '',
+        book: '',
         chapter: 0,
         verse: 0
       }
@@ -20,26 +21,23 @@ export default class Container extends Component {
   }
 
   componentDidMount () {
-    Promise.all([
-      this.fetchBibles(),
-      this.fetchBooks()
-    ]).then(this.setRandomPassage.bind(this))
+    this.fetchBibles()
+      .then((bibles) => (this.setState({ bibles }), bibles))
+      .then((bibles) => bibles.map(({ code }) => ({
+        version: code,
+        books: this.fetchBooks(code)
+      })))
+      .then((books) => (this.setState({ books }), books))
+      .then(() => this.setRandomPassage())
   }
 
   setRandomPassage () {
-    const book = castLotsFor(this.state.books)
-    const chapter = getRandomOf(book.chapters)
-    const chapterFetch = this.state.bibles.map(
-      ({ code: version }) =>
-        this.fetchChapter({ version, book: book.short_name, chapter })
-          .then((verses) => ({ version, verses }))
-    )
-    Promise.all(chapterFetch)
-      .then(function (verses) {
-        return verses.reduce((acc, cur) => acc[cur.version] = cur.verses, {})
-      })
-      .then((res) => {
-        debugger
+    this.state.books[0].books
+      .then((books) => {
+        const bookIndex = getRandomOf(books.length)
+        const book = getRandomOf(books[bookIndex])
+        const chapter = getRandomOf(book.chapters)
+        return [bookIndex, chapter]
       })
   }
 
@@ -49,18 +47,14 @@ export default class Container extends Component {
       .get('chapter')
   }
 
-  fetchBooks () {
-    const version = 'gnv'
+  fetchBooks (version) {
     return this.api
       .with({ version })
       .get('books')
-      .then((books) => this.setState({ books }))
   }
 
   fetchBibles () {
-    return this.api
-      .get('bibles')
-      .then((bibles) => this.setState({ bibles }))
+    return this.api.get('bibles')
   }
 
   render () {
