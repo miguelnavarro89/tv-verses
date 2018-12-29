@@ -1,35 +1,38 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-// import { map, replace, __ } from 'ramda';
 import Presentation from './Presentation'
-import videosIds from '../../config/videos'
+import YTvideos from '../../config/videos'
+import { castLotsFor } from '../../utils'
 
 export default class Container extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      playedVideos: [],
       videos: [],
-      chosenVideo: 0
+      chosenVideo: null,
+      player: null
     }
+    this.id = props.id
   }
 
   componentDidMount () {
-    // const youtubeLinkTpl = 'https://www.youtube.com/embed/{videoId}'
-    // const videos = map(replace('{videoId}', __, youtubeLinkTpl))(videosIds)
-    const chooseVideo = () => this.chooseRandomVideo(this.initPlayer)
-    this.setState({ videos: videosIds }, chooseVideo)
+    const [, chosenVideo] = castLotsFor(YTvideos)
+    this.setState({
+      videos: YTvideos,
+      chosenVideo
+    })
+    this.initPlayer()
   }
 
   initPlayer () {
-    clearTimeout(this.YTTimer)
-    const YTloaded = window.YT && window.YT.loaded
-    if (!YTloaded || !this.props) {
-      this.YTTimer = setTimeout(this.initPlayer, 250)
+    const YTApiloaded = window.YT && window.YT.loaded
+    if (!YTApiloaded) {
+      this.YTTimer = setTimeout(() => this.initPlayer(), 250)
       return
     }
-    this.player = new YT.Player(this.props.id, {
-      height: '1440',
-      width: '920',
+    clearTimeout(this.YTTimer)
+    this.player = new YT.Player(this.id, {
       videoId: this.state.chosenVideo,
       playerVars: {
         autoplay: 1,
@@ -37,28 +40,42 @@ export default class Container extends Component {
         enablejsapi: 1,
         fs: 0,
         showinfo: 0,
-        origin: window.location.origin
-        // playlist: [],
+        origin: window.location.origin,
       },
       events: {
-        // 'onReady': onPlayerReady,
-        // 'onStateChange': onPlayerStateChange
+        onReady ({target}) {
+          target.mute()
+        },
+        onStateChange: ({data}) => {
+          if (data === YT.PlayerState.ENDED) {
+            this.playAnotherVideo()
+          }
+        }
       }
     })
+    this.setState({player: this.player})
   }
 
-  getRandomVideo () {
-    const randomNumber = Math.floor(Math.random() * this.state.videos.length)
-    return this.state.videos[randomNumber]
+  playAnotherVideo () {
+    const currentVideo = this.state.chosenVideo
+    this.setState(({ playedVideos }) => ({ playedVideos: [currentVideo, ...playedVideos] }))
+    this.playRandomVideo()
   }
 
-  chooseRandomVideo (doneCb = () => {}) {
-    this.setState({ chosenVideo: this.getRandomVideo() }, doneCb)
+  playRandomVideo() {
+    let unplayedVideos = this.state.videos.filter((video) => !this.state.playedVideos.includes(video))
+    if (!unplayedVideos.length) {
+      unplayedVideos = this.state.videos
+      this.setState({ playedVideos: [] })
+    }
+    const [, chosenVideo] = castLotsFor(unplayedVideos)
+    this.setState({ chosenVideo })
+    this.player.loadVideoById(chosenVideo)
   }
 
   render () {
     return (
-      <Presentation id={this.props.id} />
+      <Presentation id={this.id} />
     )
   }
 }
