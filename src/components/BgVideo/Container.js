@@ -1,28 +1,26 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 // import { map, replace, __ } from 'ramda';
-import Presentation from './Presentation';
+import Presentation from './Presentation'
 import videosIds from '../../config/videos'
 
 export default class Container extends Component {
-  
-  constructor() {
-    super()
+  constructor (props) {
+    super(props)
     this.state = {
       videos: [],
-      chosenVideo: 0,
+      chosenVideo: 0
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     // const youtubeLinkTpl = 'https://www.youtube.com/embed/{videoId}'
     // const videos = map(replace('{videoId}', __, youtubeLinkTpl))(videosIds)
     const chooseVideo = () => this.chooseRandomVideo(this.initPlayer)
     this.setState({ videos: videosIds }, chooseVideo)
-    
   }
 
-  initPlayer() {
+  initPlayer () {
     clearTimeout(this.YTTimer)
     const YTloaded = window.YT && window.YT.loaded
     if (!YTloaded || !this.props) {
@@ -38,26 +36,26 @@ export default class Container extends Component {
         'controls': 0,
         'enablejsapi': 1,
         'fs': 0,
-        'showinfo': 0,
+        'showinfo': 0
         // playlist: [],
       },
       events: {
         // 'onReady': onPlayerReady,
         // 'onStateChange': onPlayerStateChange
       }
-    });
+    })
   }
 
-  getRandomVideo() {
+  getRandomVideo () {
     const randomNumber = Math.floor(Math.random() * this.state.videos.length)
     return this.state.videos[randomNumber]
   }
 
-  chooseRandomVideo(doneCb = () => {}) {
+  chooseRandomVideo (doneCb = () => {}) {
     this.setState({ chosenVideo: this.getRandomVideo() }, doneCb)
   }
 
-  render() {
+  render () {
     return (
       <Presentation id={this.props.id} />
     )
@@ -65,5 +63,5 @@ export default class Container extends Component {
 }
 
 Container.propTypes = {
-  id: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired
 }
