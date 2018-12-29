@@ -10,9 +10,12 @@ export default class Container extends Component {
     this.state = {
       bibles: [],
       books: [],
-      activePassage: []
+      passage: [],
+      active: 0
     }
     this.api = new Api()
+    this.TIME_HIDDEN = 10000
+    this.TIME_SHOWN = 5000
   }
 
   componentDidMount () {
@@ -67,8 +70,34 @@ export default class Container extends Component {
         )
       ))
       .then((passage) => {
-        this.setState({activePassage: passage})
+        this.setState({ passage })
+        this.setPassage(0)
+        !this.slideshowPlaying && this.startSlideshow()
       })
+  }
+
+  setPassage (index) {
+    this.passage = this.state.passage[index]
+    this.setState({ active: index })
+  }
+
+  stopSlideshow () {
+    clearInterval(this.verseTimer)
+    this.slideshowPlaying = false
+  }
+
+  startSlideshow () {
+    this.slideshowPlaying = true
+    this.verseTimer = setInterval(() => {
+      const currentIndex = this.state.active
+      const totalVerses = this.state.passage.length
+      if (currentIndex === totalVerses - 1) {
+        this.setRandomPassage()
+        this.stopSlideshow()
+        return
+      }
+      this.setPassage(currentIndex + 1)
+    }, this.TIME_SHOWN)
   }
 
   fetchVerse ({ version, book, chapter, verse }) {
@@ -94,9 +123,8 @@ export default class Container extends Component {
   }
 
   render () {
-    const passage = this.state.activePassage[0]
     return (
-      passage ? <Presentation passage={passage} /> : 'Loading'
+      this.passage ? <Presentation passage={this.passage} /> : null
     )
   }
 }

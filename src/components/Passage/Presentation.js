@@ -53,8 +53,8 @@ export default function Presentation ({ passage }) {
   fontSize < 3 && (fontSize = 3)
   fontSize = fontSize + UNIT
   return (
-    <Wrapper style={{fontSize}}>
-      <Content>{content}</Content>
+    <Wrapper style={{ fontSize }}>
+      <Content dangerouslySetInnerHTML={{ __html: content }} />
       <Reference>{bookLongName} {chapter}:{verse} (<Version>{version}</Version>)</Reference>
     </Wrapper>
   )
