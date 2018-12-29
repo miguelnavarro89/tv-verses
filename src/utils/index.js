@@ -1,7 +1,7 @@
 export function castLotsFor (collection = []) {
   const total = collection.length
   const id = getRandomOf(total)
-  return collection[id]
+  return [id, collection[id]]
 }
 
 export function getRandomOf (total = 10) {

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { pipe, filter, prop, then, propEq, head } from 'ramda'
 import Presentation from './Presentation'
 import Api from '../../Api'
-import { getRandomOf } from '../../utils'
+import { castLotsFor, getRandomOf } from '../../utils'
 
 export default class Container extends Component {
   constructor (props) {
@@ -29,22 +29,21 @@ export default class Container extends Component {
   setRandomPassage () {
     this.state.books[0].books
       .then((books) => {
-        const bookIndex = getRandomOf(books.length)
-        const book = books[bookIndex]
-        const chapter = getRandomOf(book.chapters) + 1
+        const [selectedBookIndex, selectedBook] = castLotsFor(books)
+        const chapter = getRandomOf(selectedBook.chapters) + 1
         return Promise.all(
           this.state.bibles.map(({ code }) =>
             pipe(
               filter(propEq('version', code)),
               head,
               prop('books'),
-              then((books) => ({
+              then((versionBooks) => ({
                 version: code,
-                book: [books[bookIndex].short_name, books[bookIndex].long_name],
+                book: [versionBooks[selectedBookIndex].short_name, versionBooks[selectedBookIndex].long_name],
                 chapter,
                 verse: this.fetchChapter({
                   version: code,
-                  book: books[bookIndex].short_name,
+                  book: versionBooks[selectedBookIndex].short_name,
                   chapter
                 })
               }))
@@ -55,14 +54,14 @@ export default class Container extends Component {
       .then((passage) => passage[0].verse.then(
         (verses) => ({
           passage,
-          verseIndex: getRandomOf(verses.length)
+          selectedVerseIndex: getRandomOf(verses.length)
         })
       ))
-      .then(({ verseIndex, passage }) => Promise.all(
+      .then(({ selectedVerseIndex, passage }) => Promise.all(
         passage.map(({ verse, ...rest }) =>
-          verse.then((verses) => ({
-            verse: verseIndex + 1,
-            content: verses[verseIndex].content,
+          verse.then((versionVerses) => ({
+            verse: selectedVerseIndex + 1,
+            content: versionVerses[selectedVerseIndex].content,
             ...rest
           }))
         )
