@@ -4,8 +4,6 @@ import Presentation from './Presentation'
 import Api from '../../Api'
 import { getRandomOf } from '../../utils'
 
-const log = console.log
-
 export default class Container extends Component {
   constructor (props) {
     super(props)
@@ -34,28 +32,43 @@ export default class Container extends Component {
         const bookIndex = getRandomOf(books.length)
         const book = books[bookIndex]
         const chapter = getRandomOf(book.chapters)
-        return this.state.bibles.map(({ code }) => {
-          let bookShortName
-          pipe(
-            filter(propEq('version', code)),
-            head,
-            prop('books'),
-            then((books) => {
-              bookShortName = books[bookIndex].short_name
-            })
-          )(this.state.books)
-          return {
-            version: code,
-            bookIndex: bookIndex,
-            chapter: chapter,
-            verses: this.fetchChapter({ version: code, book: bookShortName, chapter })
-          }
-        })
+        return Promise.all(
+          this.state.bibles.map(({ code }) =>
+            pipe(
+              filter(propEq('version', code)),
+              head,
+              prop('books'),
+              then((books) => ({
+                version: code,
+                book: [books[bookIndex].short_name, books[bookIndex].long_name],
+                chapter,
+                verse: this.fetchChapter({
+                  version: code,
+                  book: books[bookIndex].short_name,
+                  chapter
+                })
+              }))
+            )(this.state.books)
+          )
+        )
       })
-      .then((res) => {
-        log(res)
-        res[3].verses.then((res) => {
+      .then((passage) => passage[0].verse.then(
+        (verses) => ({
+          passage,
+          verseIndex: getRandomOf(verses.length)
         })
+      ))
+      .then(({ verseIndex, passage }) => Promise.all(
+        passage.map(({ verse, ...rest }) =>
+          verse.then((verses) => ({
+            verse: verseIndex,
+            content: verses[verseIndex].content,
+            ...rest
+          }))
+        )
+      ))
+      .then((passage) => {
+        this.setState({activePassage: passage})
       })
   }
 
@@ -82,8 +95,9 @@ export default class Container extends Component {
   }
 
   render () {
+    const passage = this.state.activePassage[0]
     return (
-      <Presentation passage={this.state.activePassage} />
+      passage ? <Presentation passage={passage} /> : 'Loading'
     )
   }
 }

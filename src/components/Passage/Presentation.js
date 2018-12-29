@@ -7,11 +7,12 @@ const Content = styled.div``
 
 const Reference = styled.div``
 
-export default function Presentation ({ content, version, chapter, verse }) {
+export default function Presentation ({ passage }) {
+  const { content, version, book, chapter, verse } = passage
   return (
     <Wrapper>
       <Content>{content}</Content>
-      <Reference>{version} {chapter}: {verse}</Reference>
+      <Reference>{version} {book} {chapter}: {verse}</Reference>
     </Wrapper>
   )
 }

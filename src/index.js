@@ -11,7 +11,7 @@ const App = () => {
   return (
     <Fragment>
       <Passage />
-      {/* <BgVideo id='bg-video' /> */}
+      <BgVideo id='bg-video' />
       <GlobalStyle />
       <AsyncScript load={YOUTUBE_API_URL} />
     </Fragment>
