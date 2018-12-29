@@ -28,15 +28,16 @@ export default class Container extends Component {
       return
     }
     this.player = new YT.Player(this.props.id, {
-      height: '640',
-      width: '480',
+      height: '1440',
+      width: '920',
       videoId: this.state.chosenVideo,
       playerVars: {
-        'autoplay': 1,
-        'controls': 0,
-        'enablejsapi': 1,
-        'fs': 0,
-        'showinfo': 0
+        autoplay: 1,
+        controls: 0,
+        enablejsapi: 1,
+        fs: 0,
+        showinfo: 0,
+        origin: window.location.origin
         // playlist: [],
       },
       events: {

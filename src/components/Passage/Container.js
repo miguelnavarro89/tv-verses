@@ -31,7 +31,7 @@ export default class Container extends Component {
       .then((books) => {
         const bookIndex = getRandomOf(books.length)
         const book = books[bookIndex]
-        const chapter = getRandomOf(book.chapters)
+        const chapter = getRandomOf(book.chapters) + 1
         return Promise.all(
           this.state.bibles.map(({ code }) =>
             pipe(
@@ -61,7 +61,7 @@ export default class Container extends Component {
       .then(({ verseIndex, passage }) => Promise.all(
         passage.map(({ verse, ...rest }) =>
           verse.then((verses) => ({
-            verse: verseIndex,
+            verse: verseIndex + 1,
             content: verses[verseIndex].content,
             ...rest
           }))
