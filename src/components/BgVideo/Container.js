@@ -62,7 +62,7 @@ export default class Container extends Component {
     this.playRandomVideo()
   }
 
-  playRandomVideo() {
+  playRandomVideo () {
     let unplayedVideos = this.state.videos.filter((video) => !this.state.playedVideos.includes(video))
     if (!unplayedVideos.length) {
       unplayedVideos = this.state.videos
