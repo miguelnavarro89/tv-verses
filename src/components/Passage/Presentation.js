@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   font-size: ${({ size }) => size || FONT_SIZE + UNIT};
   color: white;
   font-variant-ligatures: common-ligatures;
-  transition: ease opacity 3s;
+  transition: ease opacity ${({ fadeMs }) => (fadeMs && (fadeMs / 1000)) || 3}s;
   opacity: ${({ visible }) => visible ? 1 : 0};
 
   &::before {
@@ -52,14 +52,14 @@ const Version = styled.abbr`
   font-size: .8em;
 `
 
-export default function Presentation ({ passage, visible }) {
+export default function Presentation ({ passage, visible, fadeMs }) {
   const { content, version, book: [, bookLongName], chapter, verse } = passage
   const diff = FONT_SIZE - content.length * INC_PER_CHAR
   let fontSize = FONT_SIZE + diff
   fontSize < 3 && (fontSize = 3)
   fontSize = fontSize + UNIT
   return (
-    <Wrapper visible={visible} size={fontSize}>
+    <Wrapper fadeMs={fadeMs} visible={visible} size={fontSize}>
       <Content dangerouslySetInnerHTML={{ __html: content }} />
       <Reference>{bookLongName} {chapter}:{verse} (<Version>{version}</Version>)</Reference>
     </Wrapper>

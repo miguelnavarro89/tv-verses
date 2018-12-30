@@ -17,7 +17,7 @@ export default class Container extends Component {
     this.api = new Api()
     this.TIME_FADE = 3000
     this.TIME_HIDDEN = 15000 + (this.TIME_FADE * 2)
-    this.TIME_SHOWN = 7000 + (this.TIME_FADE * 2)
+    this.TIME_SHOWN = 15000 + (this.TIME_FADE * 2)
   }
 
   componentDidMount () {
@@ -28,7 +28,7 @@ export default class Container extends Component {
         books: this.fetchBooks(code)
       })))
       .then((books) => (this.setState({ books }), books))
-      .then(() => setTimeout(this.setRandomPassage.bind(this), this.TIME_HIDDEN))
+      .then(() => setTimeout(this.setRandomPassage.bind(this), this.TIME_SHOWN))
   }
 
   setRandomPassage () {
@@ -140,7 +140,7 @@ export default class Container extends Component {
   render () {
     const passage = this.state.passage.length && this.state.passage[this.state.active]
     return (
-      passage ? <Presentation visible={this.state.visible} passage={passage} /> : null
+      passage ? <Presentation fadeMs={this.TIME_FADE} visible={this.state.visible} passage={passage} /> : null
     )
   }
 }
