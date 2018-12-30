@@ -9,9 +9,11 @@ const INC_PER_CHAR = FONT_SIZE / CHARS_IN_CONTEXT
 const Wrapper = styled.div`
   position: relative;
   padding: 7%;
-  font-size: ${FONT_SIZE + UNIT};
+  font-size: ${({ fontSize }) => fontSize || FONT_SIZE + UNIT};
   color: white;
   font-variant-ligatures: common-ligatures;
+  transition: ease opacity .62s;
+  opacity: ${({ visible }) => visible ? 1 : 0};
 
   &::before {
     content: '';
@@ -46,14 +48,14 @@ const Version = styled.abbr`
   font-size: .8em;
 `
 
-export default function Presentation ({ passage }) {
+export default function Presentation ({ passage, visible }) {
   const { content, version, book: [, bookLongName], chapter, verse } = passage
   const diff = FONT_SIZE - content.length * INC_PER_CHAR
   let fontSize = FONT_SIZE + diff
   fontSize < 3 && (fontSize = 3)
   fontSize = fontSize + UNIT
   return (
-    <Wrapper style={{ fontSize }}>
+    <Wrapper visible={visible} fontSize={fontSize}>
       <Content dangerouslySetInnerHTML={{ __html: content }} />
       <Reference>{bookLongName} {chapter}:{verse} (<Version>{version}</Version>)</Reference>
     </Wrapper>

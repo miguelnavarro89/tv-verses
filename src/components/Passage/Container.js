@@ -11,10 +11,11 @@ export default class Container extends Component {
       bibles: [],
       books: [],
       passage: [],
-      active: 0
+      active: 0,
+      visible: false
     }
     this.api = new Api()
-    this.TIME_HIDDEN = 10000
+    this.TIME_HIDDEN = 15000
     this.TIME_SHOWN = 5000
   }
 
@@ -71,13 +72,12 @@ export default class Container extends Component {
       ))
       .then((passage) => {
         this.setState({ passage })
-        this.setPassage(0)
+        this.setActive(0)
         !this.slideshowPlaying && this.startSlideshow()
       })
   }
 
-  setPassage (index) {
-    this.passage = this.state.passage[index]
+  setActive (index) {
     this.setState({ active: index })
   }
 
@@ -87,17 +87,28 @@ export default class Container extends Component {
   }
 
   startSlideshow () {
+    setTimeout(this.show.bind(this), 0)
     this.slideshowPlaying = true
-    this.verseTimer = setInterval(() => {
+    const showNextVerse = () => {
       const currentIndex = this.state.active
       const totalVerses = this.state.passage.length
       if (currentIndex === totalVerses - 1) {
-        this.setRandomPassage()
         this.stopSlideshow()
+        this.hide()
+        setTimeout(this.setRandomPassage.bind(this), this.TIME_HIDDEN)
         return
       }
-      this.setPassage(currentIndex + 1)
-    }, this.TIME_SHOWN)
+      this.setActive(currentIndex + 1)
+    }
+    this.verseTimer = setInterval(showNextVerse, this.TIME_SHOWN)
+  }
+
+  hide () {
+    this.setState({ visible: false })
+  }
+
+  show () {
+    this.setState({ visible: true })
   }
 
   fetchVerse ({ version, book, chapter, verse }) {
@@ -123,8 +134,9 @@ export default class Container extends Component {
   }
 
   render () {
+    const passage = this.state.passage.length && this.state.passage[this.state.active]
     return (
-      this.passage ? <Presentation passage={this.passage} /> : null
+      passage ? <Presentation visible={this.state.visible} passage={passage} /> : null
     )
   }
 }
