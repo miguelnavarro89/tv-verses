@@ -9,10 +9,10 @@ const INC_PER_CHAR = FONT_SIZE / CHARS_IN_CONTEXT
 const Wrapper = styled.div`
   position: relative;
   padding: 7%;
-  font-size: ${({ fontSize }) => fontSize || FONT_SIZE + UNIT};
+  font-size: ${({ size }) => size || FONT_SIZE + UNIT};
   color: white;
   font-variant-ligatures: common-ligatures;
-  transition: ease opacity .62s;
+  transition: ease opacity 3s;
   opacity: ${({ visible }) => visible ? 1 : 0};
 
   &::before {
@@ -23,9 +23,13 @@ const Wrapper = styled.div`
     left: -40%;
     right: 0;
     bottom: 0;
-    background-color: black;
+    background-color: rgba(0, 0, 0, .62);
     filter: blur(12vw);
     border-radius: 100%;
+  }
+
+  f {
+    display: none;
   }
 `
 
@@ -55,7 +59,7 @@ export default function Presentation ({ passage, visible }) {
   fontSize < 3 && (fontSize = 3)
   fontSize = fontSize + UNIT
   return (
-    <Wrapper visible={visible} fontSize={fontSize}>
+    <Wrapper visible={visible} size={fontSize}>
       <Content dangerouslySetInnerHTML={{ __html: content }} />
       <Reference>{bookLongName} {chapter}:{verse} (<Version>{version}</Version>)</Reference>
     </Wrapper>

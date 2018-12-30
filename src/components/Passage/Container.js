@@ -15,9 +15,9 @@ export default class Container extends Component {
       visible: false
     }
     this.api = new Api()
-    this.TIME_HIDDEN = 15000
-    this.TIME_SHOWN = 5000
-    this.TIME_FADE = 620
+    this.TIME_FADE = 3000
+    this.TIME_HIDDEN = 15000 + (this.TIME_FADE * 2)
+    this.TIME_SHOWN = 7000 + (this.TIME_FADE * 2)
   }
 
   componentDidMount () {
@@ -28,7 +28,7 @@ export default class Container extends Component {
         books: this.fetchBooks(code)
       })))
       .then((books) => (this.setState({ books }), books))
-      .then(() => this.setRandomPassage())
+      .then(() => setTimeout(this.setRandomPassage.bind(this), this.TIME_HIDDEN))
   }
 
   setRandomPassage () {
