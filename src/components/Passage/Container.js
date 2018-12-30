@@ -17,6 +17,7 @@ export default class Container extends Component {
     this.api = new Api()
     this.TIME_HIDDEN = 15000
     this.TIME_SHOWN = 5000
+    this.TIME_FADE = 620
   }
 
   componentDidMount () {
@@ -90,15 +91,18 @@ export default class Container extends Component {
     setTimeout(this.show.bind(this), 0)
     this.slideshowPlaying = true
     const showNextVerse = () => {
+      this.hide()
       const currentIndex = this.state.active
       const totalVerses = this.state.passage.length
       if (currentIndex === totalVerses - 1) {
         this.stopSlideshow()
-        this.hide()
         setTimeout(this.setRandomPassage.bind(this), this.TIME_HIDDEN)
         return
       }
-      this.setActive(currentIndex + 1)
+      setTimeout(() => {
+        this.setActive(currentIndex + 1)
+        this.show()
+      }, this.TIME_FADE)
     }
     this.verseTimer = setInterval(showNextVerse, this.TIME_SHOWN)
   }
