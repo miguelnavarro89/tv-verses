@@ -3,7 +3,7 @@ import apiEndpoints from './config/apiEndpoints'
 
 export default class Api {
   constructor () {
-    this.host = 'http://localhost:8081'
+    this.host = apiEndpoints.host
     this.params = {}
   }
 

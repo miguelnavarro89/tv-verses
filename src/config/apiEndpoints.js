@@ -1,4 +1,5 @@
 export default {
+  host: 'http://bibleapi.miguelnavarro.co',
   get: {
     bibles: '/versions',
     version: '/versions/:version',
