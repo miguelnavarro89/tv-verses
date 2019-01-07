@@ -22,7 +22,6 @@ export default class Container extends Component {
   setModels () {
     this.bibles = new Bibles()
     this.books = new Books()
-    this.book = new Book()
   }
 
   setInitialState () {
@@ -39,7 +38,6 @@ export default class Container extends Component {
   bindings () {
     this.fetchBooks = this.books.fetch.bind(this.books)
     this.chooseRandomPassage = this.chooseRandomPassage.bind(this)
-    this.setRandomChapter = this.setRandomChapter.bind(this)
     this.fetchVerse = this.fetchVerse.bind(this)
     this.startSlideshow = this.startSlideshow.bind(this)
   }
@@ -53,10 +51,30 @@ export default class Container extends Component {
   }
 
   chooseRandomPassage () {
-    this.setRandomBook()
-    this.setRandomChapter()
+    const setRandomBook = () => {
+      this.book = new Book({
+        id: this.books.random(),
+        bibleId: this.bibles.all[0].id
+      })
+      this.setState({ book: this.book.id })
+    }
+    const getTotalChapters = () => {
+      return this.book.getTotalChapters(this.bibles.all)
+    }
+    const getTotalVerses = () => {
+      return this.book.getTotalVerses(this.bibles.all)
+    }
+    const setRandomChapter = () => {
+      const chapter = this.book.randomChapter()
+      this.setState({ chapter })
+      return chapter
+    }
+    setRandomBook()
+    getTotalChapters()
+      .then(setRandomChapter)
       .then(setRandomVerse)
-    const setRandomChapter = this.setRandomChapter.bind(this)
+    setRandomChapter()
+      .then(setRandomVerse)
     this.books.totalChapters(this.bibles.all, this.bibles.all[0].id, this.state.book)
       .then(setRandomChapter)
       .then(setRandomVerse)
@@ -107,16 +125,6 @@ export default class Container extends Component {
       })
   }
 
-  setRandomBook () {
-    this.setState({ book: this.books.random() })
-  }
-
-  setRandomChapter (totalChapters) {
-    const chapter = getRandomOf(totalChapters)
-    this.setState({ chapter })
-    return chapter
-  }
-
   setActive (index) {
     this.setState({ active: index })
   }
@@ -153,18 +161,6 @@ export default class Container extends Component {
   show () {
     this.setState({ visible: true })
   }
-
-  // fetchVerse ({ version, book, chapter, verse }) {
-  //   return this.api
-  //     .with({ version, book, chapter, verse })
-  //     .get('verse')
-  // }
-
-  // fetchChapter ({ version, book, chapter }) {
-  //   return this.api
-  //     .with({ version, book, chapter })
-  //     .get('chapter')
-  // }
 
   render () {
     const passage = this.state.passage.length && this.state.passage[this.state.active]

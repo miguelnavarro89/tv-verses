@@ -1,30 +1,38 @@
+import { pipe, propEq, prop, find } from 'ramda'
 import Api from '../Api'
-// import { getRandomOf } from '../utils'
+import { getRandomOf } from '../utils'
 
 export class Book {
-  constructor () {
+  constructor ({ id = null, bibleId = null }) {
     this.api = new Api()
-    this.id = 0
-    this.bibleId = 0
-    this.shortName = null
-    this.longName = null
+    this.id = id
+    this.bibleId = bibleId
     this.chapters = {
       total: 0
     }
-    this.verses = {
-      total: 0
-    }
+
+    this.getVersion = pipe(
+      find(propEq('id', this.bibleId)),
+      prop('code')
+    )
+    this.setTotalChapters = this.setTotalChapters.bind(this)
   }
 
-  totalChapters (bibles, bible, book = 0) {
+  setTotalChapters (total) {
+    return (this.chapters.total = total)
+  }
+
+  getTotalChapters (bibles) {
     return this.api
       .with({
-        version: pipe(
-          find(propEq('id', bible)),
-          prop('code')
-        )(bibles),
-        book: this.all[bible].content[book].short_name
+        version: this.getVersion(bibles),
+        book: this.all[this.bibleId].content[this.id].short_name
       })
       .get('totalChapters')
+      .then(this.setTotalChapters)
+  }
+
+  randomChapter () {
+    return getRandomOf(this.total)
   }
 }
