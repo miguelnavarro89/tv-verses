@@ -1,37 +1,66 @@
 import React, { Component } from 'react'
 import { pipe, filter, prop, then, propEq, head } from 'ramda'
 import Presentation from './Presentation'
-import Api from '../../Api'
-import { castLotsFor, getRandomOf } from '../../utils'
+import { Bibles, Books, Book } from '../../models'
+import { castLotsFor, getRandomOf, timer } from '../../utils'
 
 export default class Container extends Component {
   constructor (props) {
     super(props)
-    this.state = {
-      bibles: [],
-      books: [],
-      passage: [],
-      active: 0,
-      visible: false
-    }
-    this.api = new Api()
+    this.constants()
+    this.setInitialState()
+    this.setModels()
+    this.bindings()
+  }
+
+  constants () {
     this.TIME_FADE = 3000
     this.TIME_HIDDEN = 15000 + (this.TIME_FADE * 2)
     this.TIME_SHOWN = 15000 + (this.TIME_FADE * 2)
   }
 
-  componentDidMount () {
-    this.fetchBibles()
-      .then((bibles) => (this.setState({ bibles }), bibles))
-      .then((bibles) => bibles.map(({ code }) => ({
-        version: code,
-        books: this.fetchBooks(code)
-      })))
-      .then((books) => (this.setState({ books }), books))
-      .then(() => setTimeout(this.setRandomPassage.bind(this), this.TIME_SHOWN))
+  setModels () {
+    this.bibles = new Bibles()
+    this.books = new Books()
+    this.book = new Book()
   }
 
-  setRandomPassage () {
+  setInitialState () {
+    this.state = {
+      passage: [],
+      book: 0,
+      chapter: 0,
+      verse: 0,
+      activeBible: 0,
+      visible: false
+    }
+  }
+
+  bindings () {
+    this.fetchBooks = this.books.fetch.bind(this.books)
+    this.chooseRandomPassage = this.chooseRandomPassage.bind(this)
+    this.setRandomChapter = this.setRandomChapter.bind(this)
+    this.fetchVerse = this.fetchVerse.bind(this)
+    this.startSlideshow = this.startSlideshow.bind(this)
+  }
+
+  componentDidMount () {
+    this.bibles.fetch()
+      .then(this.fetchBooks)
+      .then(this.chooseRandomPassage)
+      .then(this.fetchVerse)
+      .then(this.startSlideshow)
+  }
+
+  chooseRandomPassage () {
+    this.setRandomBook()
+    this.setRandomChapter()
+      .then(setRandomVerse)
+    const setRandomChapter = this.setRandomChapter.bind(this)
+    this.books.totalChapters(this.bibles.all, this.bibles.all[0].id, this.state.book)
+      .then(setRandomChapter)
+      .then(setRandomVerse)
+
     this.state.books[0].books
       .then((books) => {
         const [selectedBookIndex, selectedBook] = castLotsFor(books)
@@ -78,6 +107,16 @@ export default class Container extends Component {
       })
   }
 
+  setRandomBook () {
+    this.setState({ book: this.books.random() })
+  }
+
+  setRandomChapter (totalChapters) {
+    const chapter = getRandomOf(totalChapters)
+    this.setState({ chapter })
+    return chapter
+  }
+
   setActive (index) {
     this.setState({ active: index })
   }
@@ -115,27 +154,17 @@ export default class Container extends Component {
     this.setState({ visible: true })
   }
 
-  fetchVerse ({ version, book, chapter, verse }) {
-    return this.api
-      .with({ version, book, chapter, verse })
-      .get('verse')
-  }
+  // fetchVerse ({ version, book, chapter, verse }) {
+  //   return this.api
+  //     .with({ version, book, chapter, verse })
+  //     .get('verse')
+  // }
 
-  fetchChapter ({ version, book, chapter }) {
-    return this.api
-      .with({ version, book, chapter })
-      .get('chapter')
-  }
-
-  fetchBooks (version) {
-    return this.api
-      .with({ version })
-      .get('books')
-  }
-
-  fetchBibles () {
-    return this.api.get('bibles')
-  }
+  // fetchChapter ({ version, book, chapter }) {
+  //   return this.api
+  //     .with({ version, book, chapter })
+  //     .get('chapter')
+  // }
 
   render () {
     const passage = this.state.passage.length && this.state.passage[this.state.active]
