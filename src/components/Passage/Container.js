@@ -27,18 +27,16 @@ export default class Container extends Component {
   setInitialState () {
     this.state = {
       passage: [],
-      book: 0,
-      chapter: 0,
-      verse: 0,
-      activeBible: 0,
+      activeBibleId: 0,
       visible: false
     }
   }
 
   bindings () {
+    
     this.fetchBooks = this.books.fetch.bind(this.books)
     this.chooseRandomPassage = this.chooseRandomPassage.bind(this)
-    this.fetchVerse = this.fetchVerse.bind(this)
+    this.fetchPassage = this.book.fetchVerse.bind(this.book)
     this.startSlideshow = this.startSlideshow.bind(this)
   }
 
@@ -46,83 +44,27 @@ export default class Container extends Component {
     this.bibles.fetch()
       .then(this.fetchBooks)
       .then(this.chooseRandomPassage)
-      .then(this.fetchVerse)
-      .then(this.startSlideshow)
+      .then(this.fetchPassage)
+      .then(this.setState.bind(this))
+      // .then(this.startSlideshow)
+    debugger
   }
 
   chooseRandomPassage () {
-    const setRandomBook = () => {
+    const chooseBook = () => {
       this.book = new Book({
         id: this.books.random(),
-        bibleId: this.bibles.all[0].id
+        bibleId: this.bibles.all[0].id,
+        bibles: this.bibles.all
       })
-      this.setState({ book: this.book.id })
     }
-    const getTotalChapters = () => {
-      return this.book.getTotalChapters(this.bibles.all)
-    }
-    const getTotalVerses = () => {
-      return this.book.getTotalVerses(this.bibles.all)
-    }
-    const setRandomChapter = () => {
-      const chapter = this.book.randomChapter()
-      this.setState({ chapter })
-      return chapter
-    }
-    setRandomBook()
-    getTotalChapters()
-      .then(setRandomChapter)
-      .then(setRandomVerse)
-    setRandomChapter()
-      .then(setRandomVerse)
-    this.books.totalChapters(this.bibles.all, this.bibles.all[0].id, this.state.book)
-      .then(setRandomChapter)
-      .then(setRandomVerse)
+    const chooseChapter = () => this.book.getTotalChapters()
+      .then(() => this.book.chooseRandomChapter())
+    const chooseVerse = () => this.book.getTotalVerses()
+      .then(() => this.book.chooseRandomVerse())
 
-    this.state.books[0].books
-      .then((books) => {
-        const [selectedBookIndex, selectedBook] = castLotsFor(books)
-        const chapter = getRandomOf(selectedBook.chapters) + 1
-        return Promise.all(
-          this.state.bibles.map(({ code }) =>
-            pipe(
-              filter(propEq('version', code)),
-              head,
-              prop('books'),
-              then((versionBooks) => ({
-                version: code,
-                book: [versionBooks[selectedBookIndex].short_name, versionBooks[selectedBookIndex].long_name],
-                chapter,
-                verse: this.fetchChapter({
-                  version: code,
-                  book: versionBooks[selectedBookIndex].short_name,
-                  chapter
-                })
-              }))
-            )(this.state.books)
-          )
-        )
-      })
-      .then((passage) => passage[0].verse.then(
-        (verses) => ({
-          passage,
-          selectedVerseIndex: getRandomOf(verses.length)
-        })
-      ))
-      .then(({ selectedVerseIndex, passage }) => Promise.all(
-        passage.map(({ verse, ...rest }) =>
-          verse.then((versionVerses) => ({
-            verse: selectedVerseIndex + 1,
-            content: versionVerses[selectedVerseIndex].content,
-            ...rest
-          }))
-        )
-      ))
-      .then((passage) => {
-        this.setState({ passage })
-        this.setActive(0)
-        !this.slideshowPlaying && this.startSlideshow()
-      })
+    chooseBook()
+    chooseChapter().then(chooseVerse)
   }
 
   setActive (index) {
